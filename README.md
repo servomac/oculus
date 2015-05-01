@@ -1,27 +1,40 @@
 
-# Oculus
+Oculus
+======
 
-A web dashboard for [Acadock](https://github.com/Scalingo/acadock-monitoring) docker container monitoring webservice. 
+A web dashboard for [Acadock](https://github.com/Scalingo/acadock-monitoring) docker container monitoring webservice. Celery workers consume periodically the live data of cpu/mem/net being used by the running docker containers, polling the Acadock API and storing the results in a redis. Flask, bootstrap and c3.js add some colour.
 
-## Set Up The Environment
+Configuration
+-------------
 
-### Run acadock:
+pass
 
-> docker run -v /sys/fs/cgroup:/host/cgroup:ro         -e CGROUP_DIR=/host/cgroup \
->            -v /proc:/host/proc:ro                    -e PROC_DIR=/host/proc \
->            -v /var/run/docker.sock:/host/docker.sock -e DOCKER_URL=unix:///host/docker.sock \
->            -p 4244:4244 --privileged --pid=host \
->            --name acadock -d scalingo/acadock-monitoring
+Set Up The Environment
+----------------------
 
-### Run Redis (as a celery and timeseries backend):
+Run *Acadock*:
 
-> docker run --name redis -p 6379:6379 -d redis:3
+```
+ docker run -v /sys/fs/cgroup:/host/cgroup:ro         -e CGROUP_DIR=/host/cgroup \
+            -v /proc:/host/proc:ro                    -e PROC_DIR=/host/proc \
+            -v /var/run/docker.sock:/host/docker.sock -e DOCKER_URL=unix:///host/docker.sock \
+            -p 4244:4244 --privileged --pid=host \
+            --name acadock -d scalingo/acadock-monitoring
+```
 
-### Run celery:
+Run *Redis* (as a celery and timeseries backend):
 
-> celery -A tasks worker --loglevel=info --beat
+```
+ docker run --name redis -p 6379:6379 -d redis:3
+```
 
-### Run acadock-front:
+Run *Celery* (workers and beat scheduler for periodical tasks):
+
+```
+ celery -A tasks worker --loglevel=info --beat
+```
+
+Run *Oculus*:
 
 > (still working in a dockerized solution)
 > python run.py
