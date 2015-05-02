@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}{{name}}{% endblock %}
+
+{% block content %}
+   
+  <div class="row"> 
+    {% for item in items %}
+    <div class="col-md-6">
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <h3 class="panel-title">{{ item }}</h3>
+        </div>
+        <div class="panel-body">
+          <div id="chart_{{item|lower}}"></div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  <div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <h3 class="panel-title">Network</h3>
+        </div>
+        <div class="panel-body">
+          <div id="chart_net"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript">
+        function generate_timeserie(bindto, timeserie) {
+            return c3.generate({
+                    bindto: bindto,
+                    data: {
+                        x: 'x',
+                        xFormat: '%Y-%m-%d %H:%M',
+                        columns: [
+                            temporal_axis,
+                            timeserie
+                        ]
+                    },
+	            axis: {
+	                x: {
+	                    type: 'timeseries',
+	                    tick: {
+	                        fit: true,
+	                        format: '%H:%M'
+	                    }
+	                }
+	            }
+	    });
+        }
+
+        var temporal_axis =  ['x'].concat({{data.time|safe}});
+        var cpu = ['cpu'].concat({{data.cpu|safe}});
+        var mem = ['mem'].concat({{data.mem|safe}});
+
+        var chart_cpu = generate_timeserie('#chart_cpu', cpu);
+        var chart_mem = generate_timeserie('#chart_memory', mem);
+    </script>
+{% endblock %}
