@@ -37,6 +37,7 @@
     <script type="text/javascript">
         var temporal_axis =  ['x'].concat({{data.time|safe}});
 
+        // CPU chart
         var chart_cpu = c3.generate({
                     bindto: '#chart_cpu',
                     data: {
@@ -62,6 +63,9 @@
 	                    }
 	                },
                         y: {
+                            max: 1,
+                            min: 0,
+                            padding: { top: 0, bottom: 0 },
                             label: {
                                 text: 'CPU Usage (%)',
                                 position: 'outer-center'
@@ -97,7 +101,7 @@
 	                },
                         y: {
                             label: {
-                                text: 'Memory usage (bytes)',
+                                text: 'Memory usage (MB)',
                                 position: 'outer-center'
                             }
                         }
@@ -144,7 +148,43 @@
         });
 
         var chart_net_errors = c3.generate({
-
+                    bindto: '#chart_net_errors',
+                    data: {
+                        x: 'x',
+                        xFormat: '%Y-%m-%d %H:%M',
+                        columns: [
+                            temporal_axis,
+                            ['Tx'].concat({{data.net.tx_err|safe}}),
+                            ['Rx'].concat({{data.net.rx_err|safe}})
+                        ],
+                        types: {
+                            Tx: 'spline',
+                            Rx: 'spline'
+                        },
+                        colors: {
+                            Rx: '#ff0000'
+                        }
+                    },
+                    point : {
+                        show: false
+                    },
+                    axis: {
+                        x: {
+                            type: 'timeseries',
+                            tick: {
+                                fit: true,
+                                format: '%H:%M'
+                            }
+                        },
+                        y: {
+                            max: 1,
+                            min: -1,
+                            label: {
+                                text: 'Errors per second',
+                                position: 'outer-center'
+                            }
+                        }
+                    }
         });
     </script>
 {% endblock %}

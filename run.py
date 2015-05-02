@@ -31,11 +31,13 @@ def describe_container(container_id):
                 data[resource].append(value)
                 data['time'].append(timestamp.strftime('%Y-%m-%d %H:%M'))
 
+    # memory from bytes to MB
+    data['mem'] = [int(x) / (1024.0)**2 for x in data['mem']]
     data['net'] = {
-        'rx': map(lambda x: x['RxBps'], data['net']),
         'tx': map(lambda x: x['TxBps'], data['net']),
-        'rx_err': map(lambda x: x['Received']['Errs'], data['net']),
+        'rx': map(lambda x: x['RxBps'], data['net']),
         'tx_err': map(lambda x: x['Transmit']['Errs'], data['net']),
+        'rx_err': map(lambda x: x['Received']['Errs'], data['net']),
     }
 
     # feed the template with the retrieved data
