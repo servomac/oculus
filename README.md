@@ -6,6 +6,8 @@ A web dashboard for [Acadock](https://github.com/Scalingo/acadock-monitoring) do
 
 > This is obviously still a work in progress.
 
+![preview](acadock-front.png "preview")
+
 Configuration
 -------------
 

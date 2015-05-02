@@ -11,6 +11,11 @@ CELERYBEAT_SCHEDULE = {
         'schedule': crontab(minute='*/1'),
         'args': ('cpu',),
     },
+    'network': {
+        'task': 'tasks.poll',
+        'schedule': crontab(minute='*/1'),
+        'args': ('net',),
+    },
 }
 
 # Change this to your settings

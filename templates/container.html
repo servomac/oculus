@@ -17,7 +17,7 @@
       </div>
     </div>
     {% endfor %}
-  <div>
+  </div>
   <div class="row">
     <div class="col-md-12">
       <div class="panel panel-primary">
@@ -25,7 +25,8 @@
           <h3 class="panel-title">Network</h3>
         </div>
         <div class="panel-body">
-          <div id="chart_net"></div>
+          <div id="chart_net_throughtput"></div>
+          <div id="chart_net_errors"></div>
         </div>
       </div>
     </div>
@@ -34,16 +35,23 @@
 
 {% block js %}
     <script type="text/javascript">
-        function generate_timeserie(bindto, timeserie) {
-            return c3.generate({
-                    bindto: bindto,
+        var temporal_axis =  ['x'].concat({{data.time|safe}});
+
+        var chart_cpu = c3.generate({
+                    bindto: '#chart_cpu',
                     data: {
                         x: 'x',
                         xFormat: '%Y-%m-%d %H:%M',
                         columns: [
                             temporal_axis,
-                            timeserie
-                        ]
+                            ['cpu'].concat({{data.cpu|safe}})
+                        ],
+                        types: {
+                            cpu: 'area-spline'
+                        }
+                    },
+                    point: {
+                        show: false
                     },
 	            axis: {
 	                x: {
@@ -52,16 +60,91 @@
 	                        fit: true,
 	                        format: '%H:%M'
 	                    }
-	                }
+	                },
+                        y: {
+                            label: {
+                                text: 'CPU Usage (%)',
+                                position: 'outer-center'
+                            }
+                        }
 	            }
 	    });
-        }
 
-        var temporal_axis =  ['x'].concat({{data.time|safe}});
-        var cpu = ['cpu'].concat({{data.cpu|safe}});
-        var mem = ['mem'].concat({{data.mem|safe}});
+        // Memory
+        var chart_mem = c3.generate({
+                    bindto: '#chart_memory',
+                    data: {
+                        x: 'x',
+                        xFormat: '%Y-%m-%d %H:%M',
+                        columns: [
+                            temporal_axis,
+                            ['mem'].concat({{data.mem|safe}})
+                        ],
+                        types: {
+                            mem: 'area-spline'
+                        }
+                    },
+                    point: {
+                        show: false
+                    },
+	            axis: {
+	                x: {
+	                    type: 'timeseries',
+	                    tick: {
+	                        fit: true,
+	                        format: '%H:%M'
+	                    }
+	                },
+                        y: {
+                            label: {
+                                text: 'Memory usage (bytes)',
+                                position: 'outer-center'
+                            }
+                        }
+	            }
+	    });
 
-        var chart_cpu = generate_timeserie('#chart_cpu', cpu);
-        var chart_mem = generate_timeserie('#chart_memory', mem);
+        // Network
+        var chart_net_throughtput = c3.generate({
+                    bindto: '#chart_net_throughtput',
+                    data: {
+                        x: 'x',
+                        xFormat: '%Y-%m-%d %H:%M',
+                        columns: [
+                            temporal_axis,
+                            ['Rx'].concat({{data.net.rx|safe}}),
+                            ['Tx'].concat({{data.net.tx|safe}})
+                        ],
+                        types: {
+                            Rx: 'spline',
+                            Tx: 'spline'
+                        },
+                        colors: {
+                            Rx: '#ff0000'
+                        }
+                    },
+                    point: {
+                        show: false
+                    },
+                    axis: {
+                        x: {
+                            type: 'timeseries',
+                            tick: {
+                                fit: true,
+                                format: '%H:%M'
+                            }
+                        },
+                        y: {
+                            label: {
+                                text: 'Bytes per second',
+                                position: 'outer-center'
+                            }
+                        }
+                    }
+        });
+
+        var chart_net_errors = c3.generate({
+
+        });
     </script>
 {% endblock %}
