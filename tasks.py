@@ -19,7 +19,6 @@ def construct_request(api_url, container_id, dest):
 
 @celery.task
 def poll(resource):
-    print resource
     req_url = construct_request(API_URL, container_id, resource)
     req = requests.get(req_url)
 
