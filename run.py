@@ -2,14 +2,27 @@ import redis
 import requests
 
 from datetime import datetime, timedelta
-from flask import Flask, render_template
+from docker import Client
+from flask import Flask, redirect, render_template, url_for
 from json import loads
 
+from settings import DOCKER_BASE_URL
 from settings import REDIS_HOST, REDIS_PORT, REDIS_DB
 from settings import REDIS_KEY, REDIS_KEY_TIMESTAMP
 
 app = Flask(__name__)
 
+@app.route('/')
+def main_page():
+    return redirect(url_for('containers'))
+
+@app.route('/containers')
+def containers():
+    c = Client(base_url=DOCKER_BASE_URL, version='auto')
+    containers = c.containers()
+    print containers
+
+    return render_template('overview.html', containers=containers)
 
 
 @app.route('/container/<container_id>')
@@ -45,6 +58,10 @@ def describe_container(container_id):
     return render_template('container.html', data=data, name=container_id,
                            items=['CPU', 'Memory'])
 
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('404.html'), 404
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

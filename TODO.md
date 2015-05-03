@@ -7,4 +7,6 @@ TODO List
 2. How to deal with data not introduced in the backend? (None values returned by redis; by the moment are just not returned by the view using a value != None..)
 3. the javascript in container.js must be in a external file. How to handle the jinja templating? Also, my JS sucks. How to avoid the concats? => Solution: Use 3c.js capacity to handle json files. http://c3js.org/samples/data_json.html
 4. redis connection pool instead of opening/closing connections
+5. Added a /containers/ view listing currently running containers. This acoplates acadock front with docker-py for an specific DOCKER_BASE_URL. (a) rethink the architecture (b) allow to configure more that just one DOCKER_BASE_URL (c not-so-related) add auth for the docker api
+6. CPU is not being returned by acadock. The Network throughtput also shows errors (negative values).
 

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Overview{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-12">
+      <div class="panel panel-default">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Container</th>
+              <th>Image</th>
+              <th>CPU %</th>
+              <th>Memory</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in containers %}
+            <tr onclick="navTo('/container/{{c.Id[:12]}}')">
+              <th>{{c.Names[0]}}</th>
+              <th>{{c.Image}}</th>
+              <th></th>
+              <th></th>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block js %}
+  <script type="text/javascript">
+    function navTo(url) {
+        document.location.href = url;
+    }
+  </script>
+{% endblock %}
