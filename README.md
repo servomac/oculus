@@ -8,6 +8,11 @@ A web dashboard for [Acadock](https://github.com/Scalingo/acadock-monitoring) do
 
 ![preview](acadock-front.png "preview")
 
+Architecture
+------------
+
+pass
+
 Configuration
 -------------
 

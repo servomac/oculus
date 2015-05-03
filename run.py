@@ -36,7 +36,6 @@ def retrieve(container_id, resource, instant):
          - container_id: the desired container_id
          - resource: 'cpu', 'mem' or 'net'
          - instant: an specific datetime
-         - r: redis connection
     """
     r = redis.Redis(connection_pool=redis_pool)
     key = REDIS_KEY.format(timestamp=instant.strftime(REDIS_KEY_TIMESTAMP),
@@ -44,12 +43,13 @@ def retrieve(container_id, resource, instant):
                            resource=resource)
     value = r.get(key)
 
-    if resource == 'mem':
-        # convert bytes to MB (memory usage)
-        value = int(value) / (1024.0)**2
-    elif resource == 'net':
-        # return a dictionary
-        value = loads(value)
+    if value != None:
+        if resource == 'mem':
+            # convert bytes to MB (memory usage)
+            value = int(value) / (1024.0)**2
+        elif resource == 'net':
+            # return a dictionary
+            value = loads(value)
 
     return value
 
@@ -63,7 +63,13 @@ def main_page():
 def containers():
     c = Client(base_url=DOCKER_BASE_URL, version='auto')
     containers = c.containers()
-    print containers
+
+    for c in containers:
+        container_id = c["Id"][:12]
+        for resource in ['cpu', 'mem']:
+            c[resource] = retrieve(container_id,
+                                   resource,
+                                   datetime.now()-timedelta(minutes=1))
 
     return render_template('overview.html', containers=containers)
 
