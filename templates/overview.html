@@ -3,6 +3,7 @@
 {% block title %}Overview{% endblock %}
 
 {% block content %}
+
   <div class="row">
     <div class="col-md-12">
       <div class="panel panel-default">
@@ -16,20 +17,42 @@
             </tr>
           </thead>
           <tbody>
-            {% for c in containers %}
-            <tr onclick="navTo('/container/{{c.Id[:12]}}')">
-              <th>{{c.Names[0]}}</th>
-              <th>{{c.Image}}</th>
-              <th></th>
-              <th></th>
-            </tr>
-            {% endfor %}
+          {% if not error %}
+              {% if containers %}
+                {% for c in containers %}
+                <tr onclick="navTo('/container/{{c.Id[:12]}}')">
+                  <th>{{c.Names[0]}}</th>
+                  <th>{{c.Image}}</th>
+                  <th></th>
+                  <th></th>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <th>There are not running containers.</th>
+                </tr>
+              {% endif %}
+          {% endif %}
           </tbody>
         </table>
       </div>
     </div>
   </div>
+
+  {% if error %}
+  <div class="row">
+      <div class="col-md-4"></div>
+      <div class="col-md-8">
+          <div class="alert alert-danger" role="alert">
+              <p>{{error}}</p>
+              <p>[{{status_msg}}}]</p>
+          </div>
+      </div>
+  </div>
+  {% endif %}
+
 {% endblock %}
+
 
 {% block js %}
   <script type="text/javascript">

@@ -9,4 +9,4 @@ TODO List
 4. redis connection pool instead of opening/closing connections
 5. Added a /containers/ view listing currently running containers. This acoplates acadock front with docker-py for an specific DOCKER_BASE_URL. (a) rethink the architecture (b) allow to configure more that just one DOCKER_BASE_URL (c not-so-related) add auth for the docker api
 6. CPU is not being returned by acadock. The Network throughtput also shows errors (negative values).
-
+7. Better integration of errors in the overview template. A panel inside the grid is just horrible. How to present the error messages?

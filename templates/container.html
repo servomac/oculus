@@ -34,9 +34,17 @@
       </div>
     </div>
   </div>
+{% if data.error %}
+    TODO: Unable to connect to database. 
+{% endif %}
 {% endblock %}
 
+
 {% block js %}
+
+  {% if data.error %}
+
+  {% else %}
     <script type="text/javascript">
         var temporal_axis =  ['x'].concat({{data.time|safe}});
 
@@ -194,4 +202,5 @@
                     }
         });
     </script>
+  {% endif %}
 {% endblock %}
