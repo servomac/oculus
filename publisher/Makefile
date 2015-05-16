@@ -8,5 +8,8 @@ run:
 rm:
 	docker rm oculus_publisher
 
+stop:
+	docker stop oculus_publisher
+
 start:
 	docker start oculus_publisher
