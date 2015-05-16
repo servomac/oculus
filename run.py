@@ -2,15 +2,16 @@ import redis
 import requests
 import time
 
+from apscheduler.scheduler import Scheduler
 from datetime import datetime, timedelta
 from docker import Client
 from docker.errors import DockerException
 from flask import Flask, redirect, render_template, url_for
 from json import loads
 
-from settings import DOCKER_BASE_URL
-from settings import REDIS_HOST, REDIS_PORT, REDIS_DB
-from settings import REDIS_KEY, REDIS_KEY_TIMESTAMP
+from publisher.settings import DOCKER_BASE_URL
+from publisher.settings import REDIS_HOST, REDIS_PORT, REDIS_DB
+from publisher.settings import REDIS_KEY, REDIS_KEY_TIMESTAMP
 
 app = Flask(__name__)
 redis_pool = redis.ConnectionPool(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
@@ -39,13 +40,21 @@ class Timer(object):
         if self.verbose:
             print 'elapsed time: %f ms' % self.msecs
 
+class OculusDocker(object):
+    def __init__(self):
+        self.client = Client(base_url=DOCKER_BASE_URL, version='auto')
+
+    def containers_ids(self):
+        for c in self.client.containers():
+            yield c['Id'][:12]
+
 
 def retrieve(container_id, resource, instant):
     """ Obtain the data stored in Redis.
-        Keyword arguments:
+        args:
          - container_id: the desired container_id
          - resource: 'cpu', 'mem' or 'net'
-         - instant: an specific datetime
+         - instant: a datetime instance
     """
     r = redis.Redis(connection_pool=redis_pool)
     key = REDIS_KEY.format(timestamp=instant.strftime(REDIS_KEY_TIMESTAMP),
@@ -75,9 +84,11 @@ def containers():
         c = Client(base_url=DOCKER_BASE_URL, version='auto')
         containers = c.containers()
 
-        for c in containers:
+        d = OculusDocker()
+        c = {}
+        for container_id in list(d.containers_ids()):
             # 12 initial characters of the hash identifying the container
-            container_id = c["Id"][:12]
+            #container_id = c["Id"][:12]
             for resource in ['cpu', 'mem']:
                 c[resource] = retrieve(container_id,
                                        resource,
@@ -133,5 +144,20 @@ def describe_container(container_id):
 def page_not_found(error):
     return render_template('404.html'), 404
 
+
+def poll():
+    print "Hello World i'm a periodic task"
+
+#@app.before_first_request
+#def initialize():
+#    apsched = Scheduler()
+#    apsched.start()
+
+    #d = OculusDocker()
+    #for c in list(d.containers_ids()):
+    #    apsched.
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
+

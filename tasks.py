@@ -37,3 +37,5 @@ def poll(resource):
     print "{}: {}".format(key, value)
     r.set(key, value)
     r.expire(key, REDIS_EXPIRE_TIME)
+
+
