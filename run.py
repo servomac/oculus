@@ -60,15 +60,7 @@ def retrieve(container_id, resource, instant):
     key = REDIS_KEY.format(timestamp=instant.strftime(REDIS_KEY_TIMESTAMP),
                            container_id=container_id,
                            resource=resource)
-    value = r.get(key)
-
-    if value != None:
-        if resource == 'mem':
-            # convert bytes to MB (memory usage)
-            value = int(value) / (1024.0)**2
-        elif resource == 'net':
-            # return a dictionary
-            value = loads(value)
+    value = loads(r.get(key))
 
     return value
 
@@ -104,6 +96,19 @@ def containers():
     return render_template('overview.html', containers=containers)
 
 
+def convert_ticks_to_usage(cpu_stats):
+    """ convert a list of {'system_cpu_usage': 771430350000000, 'cpu_usage': {'usage_in_kernelmode': 46800000000, 'percpu_usage': [29361095473, 29469353200, 7072412908, 7714245950], 'total_usage': 73617107531, 'usage_in_usermode': 18820000000}, 'throttling_data': {'throttled_periods': 0, 'periods': 0, 'throttled_time': 0}}
+    """
+    ltotalticks = [int(s['cpu_usage']['total_usage']) for s in cpu_stats]
+    total = sum(ltotalticks)
+    #lusage = [ticks*100.0/total for ticks in ltotalticks]
+    #lusage = reduce(lambda x, y: (y-x)/total, lusage, 0)
+
+    # iterate by pairs
+    lusage = [(x-y) for x, y in zip(ltotalticks[:-1], ltotalticks[1:])]
+
+    return lusage
+
 @app.route('/container/<container_id>')
 def describe_container(container_id):
     data = {}
@@ -113,7 +118,7 @@ def describe_container(container_id):
     # obtain timeseries from redis
     try:
         #with Timer(verbose=True) as t:
-        for resource in ['cpu', 'mem', 'net']:
+        for resource in ['cpu_stats', 'memory_stats', 'network', 'blkio_stats']:
             data[resource] = []
             for delta in range(60):
                 timestamp = datetime.now() - timedelta(minutes=delta)
@@ -124,16 +129,27 @@ def describe_container(container_id):
                 data['time'].append(timestamp.strftime('%Y-%m-%d %H:%M'))
 
 
-        # construct lists from list of jsons (network)
-        data['net'] = {
-            'tx': [x['TxBps'] for x in data['net']],
-            'rx': [x['RxBps'] for x in data['net']],
-            'tx_err': [x['Transmit']['Errs'] for x in data['net']],
-            'rx_err': [x['Received']['Errs'] for x in data['net']],
-        }
+#       # construct lists from list of jsons (network)
+#       data['net'] = {
+#           'tx': [x['TxBps'] for x in data['net']],
+#           'rx': [x['RxBps'] for x in data['net']],
+#           'tx_err': [x['Transmit']['Errs'] for x in data['net']],
+#           'rx_err': [x['Received']['Errs'] for x in data['net']],
+#       }
     except redis.exceptions.ConnectionError as e:
         data['error'] = 'Unable to obtain data about the container. [{}]'.format(e)
 
+
+#{'max_usage': 16216064, 'stats': {'mapped_file': 1626112, 'total_pgpgout': 14738, 'total_pgfault': 7569, 'active_file': 2084864, 'pgpgin': 16379, 'total_unevictable': 0, 'total_cache': 2351104, 'rss_huge': 2097152, 'pgpgout': 14738, 'total_mapped_file': 1626112, 'inactive_anon': 4096, 'inactive_file': 245760, 'cache': 2351104, 'pgmajfault': 130, 'unevictable': 0, 'hierarchical_memory_limit': 18446744073709551615, 'writeback': 0, 'total_inactive_file': 245760, 'pgfault': 7569, 'total_active_file': 2084864, 'active_anon': 6479872, 'rss': 6463488, 'total_writeback': 0, 'total_pgpgin': 16379, 'total_inactive_anon': 4096, 'total_pgmajfault': 130, 'total_rss': 6463488, 'total_active_anon': 6479872, 'total_rss_huge': 2097152}, 'failcnt': 0, 'usage': 8814592, 'limit': 4033351680}
+
+
+    data['cpu'] = {
+            'usage' : convert_ticks_to_usage(data['cpu_stats']),
+        }
+    data['mem'] = {
+            'usage' : [float(s['usage'])/(1024.0**2.0) for s in data['memory_stats']]
+        }
+    data['net'] = []
 
     # feed the template with the retrieved data
     return render_template('container.html', data=data, name=container_id,

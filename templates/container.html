@@ -56,7 +56,7 @@
                         xFormat: '%Y-%m-%d %H:%M',
                         columns: [
                             temporal_axis,
-                            ['cpu'].concat({{data.cpu|safe}})
+                            ['cpu'].concat({{data.cpu.usage|safe}})
                         ],
                         types: {
                             cpu: 'area-spline'
@@ -74,8 +74,8 @@
 	                    }
 	                },
                         y: {
-                            max: 100,
-                            min: 0,
+                           // max: 100,
+                           // min: 0,
                             padding: { top: 0, bottom: 0 },
                             label: {
                                 text: 'CPU Usage (%)',
@@ -93,7 +93,8 @@
                         xFormat: '%Y-%m-%d %H:%M',
                         columns: [
                             temporal_axis,
-                            ['mem'].concat({{data.mem|safe}})
+                            ['mem'].concat({{data.mem.usage|safe}}),
+                            ['limit'].concat({{data.mem.limit|safe}})
                         ],
                         types: {
                             mem: 'area-spline'
