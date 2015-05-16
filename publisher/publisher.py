@@ -13,7 +13,7 @@ from settings import REDIS_DB, REDIS_KEY, REDIS_KEY_TIMESTAMP, REDIS_EXPIRE_TIME
 DEBUG = True
 SAMPLE_SIZE = 1 #TODO
 
-DOCKER_HOST = os.getenv('DOCKER_HOST')
+DOCKER_HOST = os.getenv('DOCKER_HOST', 'unix:///var/run/docker.sock')
 REDIS_HOST = os.getenv('DB_PORT_6379_TCP_ADDR')
 REDIS_PORT = os.getenv('DB_PORT_6379_TCP_PORT')
 
@@ -48,6 +48,7 @@ def feed_db(container_id, stats):
 
 
 if __name__ == '__main__':
+    print(DOCKER_HOST)
     cli = Client(base_url=DOCKER_HOST)
     containers = cli.containers()
 

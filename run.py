@@ -1,5 +1,4 @@
 import redis
-import requests
 import time
 
 from apscheduler.scheduler import Scheduler
@@ -79,12 +78,13 @@ def containers():
         d = OculusDocker()
         c = {}
         for container_id in list(d.containers_ids()):
+            pass
             # 12 initial characters of the hash identifying the container
             #container_id = c["Id"][:12]
-            for resource in ['cpu', 'mem']:
-                c[resource] = retrieve(container_id,
-                                       resource,
-                                       datetime.now()-timedelta(minutes=1))
+            #for resource in ['cpu', 'mem']:
+            #    c[resource] = retrieve(container_id,
+            #                           resource,
+            #                           datetime.now()-timedelta(minutes=1))
 
     except DockerException as e:
         error_msg = "Docker it's down."
@@ -105,7 +105,7 @@ def convert_ticks_to_usage(cpu_stats):
     #lusage = reduce(lambda x, y: (y-x)/total, lusage, 0)
 
     # iterate by pairs
-    lusage = [(x-y) for x, y in zip(ltotalticks[:-1], ltotalticks[1:])]
+    lusage = [(x-y)/10000000 for x, y in zip(ltotalticks[:-1], ltotalticks[1:])]
 
     return lusage
 
