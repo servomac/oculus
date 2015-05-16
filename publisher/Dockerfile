@@ -1,16 +1,14 @@
 FROM python:3.4
 
 RUN apt-get update \
-    && apt-get install -y cron rsyslog
+    && apt-get install -y cron
 
 ADD . /code
-ADD rsyslog.conf /etc/
-RUN chmod 0644 /etc/rsyslog.conf
-
-ADD crontab /var/spool/cron/crontabs/root
-RUN chmod 0600 /var/spool/cron/crontabs/root
+ADD crontab /etc/cron.d/publisher
+RUN chmod 0644 /etc/cron.d/publisher
 
 WORKDIR /code
 RUN pip install -r requirements.txt
 
-CMD rsyslogd && cron && tail -f /var/log/syslog /var/log/cron.log
+RUN touch /var/log/cron.log
+CMD cron && env > /root/env.txt && tail -f /var/log/cron.log

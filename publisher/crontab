@@ -1,0 +1,2 @@
+# Periodically retrieve stats data from docker API
+* * * * * root env - `cat /root/env.txt` /usr/local/bin/python3.4 /code/publisher.py >> /var/log/cron.log 2>&1
